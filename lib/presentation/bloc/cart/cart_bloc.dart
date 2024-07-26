@@ -1,79 +1,68 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'cart_event.dart';
 import '../../../domain/entities/product.dart';
-
-part 'cart_event.dart';
 part 'cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
-  CartBloc() : super(CartLoaded(products: [], productQuantities: {})) {
+  CartBloc() : super(CartLoaded(products: [])) {
+    on<LoadCart>(_onLoadCart);
     on<AddProductToCart>(_onAddProductToCart);
     on<RemoveProductFromCart>(_onRemoveProductFromCart);
     on<UpdateProductQuantity>(_onUpdateProductQuantity);
   }
 
+  void _onLoadCart(LoadCart event, Emitter<CartState> emit) {
+    // Load initial cart state (e.g., from local storage or an API)
+    emit(CartLoaded(products: []));
+  }
+
   void _onAddProductToCart(AddProductToCart event, Emitter<CartState> emit) {
-    print(
-        'Adding product to cart in bloc: ${event.product.name}, Quantity: ${event.quantity}');
+    print('Current State: $state');
     if (state is CartLoaded) {
-      final stateLoaded = state as CartLoaded;
-      final updatedProducts = List<Product>.from(stateLoaded.products);
-      final updatedProductQuantities =
-          Map<Product, int>.from(stateLoaded.productQuantities);
-
-      if (updatedProductQuantities.containsKey(event.product)) {
-        updatedProductQuantities[event.product] =
-            updatedProductQuantities[event.product]! + event.quantity;
+      final cart = (state as CartLoaded).products;
+      final existingProductIndex =
+          cart.indexWhere((product) => product.id == event.product.id);
+      if (existingProductIndex != -1) {
+        final updatedCart = List<Product>.from(cart);
+        final existingProduct = updatedCart[existingProductIndex];
+        final updatedProduct =
+            existingProduct.copyWith(quantity: existingProduct.quantity + 1);
+        updatedCart[existingProductIndex] = updatedProduct;
+        emit(CartLoaded(products: updatedCart));
       } else {
-        updatedProducts.add(event.product);
-        updatedProductQuantities[event.product] = event.quantity;
+        final updatedCart = List<Product>.from(cart)
+          ..add(event.product.copyWith(quantity: 1));
+        emit(CartLoaded(products: updatedCart));
       }
-
-      emit(CartLoaded(
-          products: updatedProducts,
-          productQuantities: updatedProductQuantities));
     } else {
-      final Map<Product, int> initialQuantities = {
-        event.product: event.quantity
-      };
-      emit(CartLoaded(
-          products: [event.product], productQuantities: initialQuantities));
+      print('error');
     }
   }
 
   void _onRemoveProductFromCart(
       RemoveProductFromCart event, Emitter<CartState> emit) {
     if (state is CartLoaded) {
-      final stateLoaded = state as CartLoaded;
-      final updatedProducts = List<Product>.from(stateLoaded.products);
-      final updatedProductQuantities =
-          Map<Product, int>.from(stateLoaded.productQuantities);
-
-      updatedProducts.remove(event.product);
-      updatedProductQuantities.remove(event.product);
-
-      emit(CartLoaded(
-          products: updatedProducts,
-          productQuantities: updatedProductQuantities));
+      final cart = (state as CartLoaded).products;
+      final updatedCart = List<Product>.from(cart)
+        ..removeWhere((product) => product.id == event.product.id);
+      emit(CartLoaded(products: updatedCart));
     }
   }
 
   void _onUpdateProductQuantity(
       UpdateProductQuantity event, Emitter<CartState> emit) {
     if (state is CartLoaded) {
-      final stateLoaded = state as CartLoaded;
-      final updatedProductQuantities =
-          Map<Product, int>.from(stateLoaded.productQuantities);
-
-      if (event.quantity > 0) {
-        updatedProductQuantities[event.product] = event.quantity;
-      } else {
-        updatedProductQuantities.remove(event.product);
+      final cart = (state as CartLoaded).products;
+      final productIndex =
+          cart.indexWhere((product) => product.id == event.product.id);
+      if (productIndex != -1) {
+        final updatedProduct =
+            cart[productIndex].copyWith(quantity: event.quantity);
+        final updatedCart = List<Product>.from(cart)
+          ..[productIndex] = updatedProduct;
+        emit(CartLoaded(products: updatedCart));
       }
-
-      emit(CartLoaded(
-          products: updatedProductQuantities.keys.toList(),
-          productQuantities: updatedProductQuantities));
     }
   }
 }

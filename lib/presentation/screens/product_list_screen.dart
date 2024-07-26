@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:product_cart_app/presentation/screens/cart_screen.dart';
 import 'package:product_cart_app/presentation/screens/product_detail_screen.dart';
 import '../bloc/cart/cart_bloc.dart';
+import '../bloc/cart/cart_event.dart';
 import '../bloc/products/product_bloc.dart';
 
 class ProductListScreen extends StatefulWidget {
@@ -15,6 +16,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final formatCurrency =
       NumberFormat.simpleCurrency(locale: 'en_IN', name: 'INR');
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CartBloc>().add(LoadCart());
+    context.read<ProductBloc>().add(FetchProducts());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +149,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 onPressed: () {
                                   context
                                       .read<CartBloc>()
-                                      .add(AddProductToCart(product, 1));
+                                      .add(AddProductToCart(product));
                                 },
                                 child: Text('Add to Cart'),
                               ),

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_cart_app/presentation/screens/cart_screen.dart';
 import '../bloc/cart/cart_bloc.dart';
 import '../../domain/entities/product.dart';
+import '../bloc/cart/cart_event.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -15,7 +16,7 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  int quantity = 1;
+  //int quantity = 1;
   final formatCurrency =
       NumberFormat.simpleCurrency(locale: 'en_IN', name: 'INR');
 
@@ -118,16 +119,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     icon: Icon(Icons.remove),
                                     onPressed: () {
                                       setState(() {
-                                        if (quantity > 1) quantity--;
+                                        if (widget.product.quantity > 1)
+                                          widget.product.quantity - 1;
                                       });
                                     },
                                   ),
-                                  Text(quantity.toString()),
+                                  Text(widget.product.quantity.toString()),
                                   IconButton(
                                     icon: Icon(Icons.add),
                                     onPressed: () {
                                       setState(() {
-                                        if (quantity < 10) quantity++;
+                                        if (widget.product.quantity < 10)
+                                          widget.product.quantity + 1;
                                       });
                                     },
                                   ),
@@ -161,7 +164,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     onPressed: () {
                       context
                           .read<CartBloc>()
-                          .add(AddProductToCart(widget.product, quantity));
+                          .add(AddProductToCart(widget.product));
                       // Navigator.pop(
                       //     context); // Go back to the product list after adding to cart
                     },
