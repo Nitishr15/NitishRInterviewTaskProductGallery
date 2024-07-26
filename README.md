@@ -40,20 +40,20 @@ Flutter SDK Version 3.22.2 or greater.
     ├── core
     │   └── utils                   - contains common files and utilities of project
     ├── data
-    │   ├── models                  - contains request/response models 
-    │   ├── repositories            - network repository 
-    │   └── sources                 - contains API calling methods
+    │   ├── models                  - extension of the entities, so we will let our model class to extend our entity 
+    │   ├── repositories            - contains implimentation of the repos in the domain layer 
+    │   └── sources                 - works with external resources to fetch data
     ├── domain
-    │   ├── entities                - contains request/response models 
-    │   ├── repositories            - network repository 
-    │   └── usecases                - contains API calling methods
+    │   ├── entities                - contains blue print of data model which will pass around for a certain features or     
+                                      screens or pages 
+    │   ├── repositories            - contains abstract classes or interfaces 
+    │   └── usecases                - contains tunnel between presentation and domain layer to communicate.
     ├── presentation                - contains all screens and screen controllers
-    │   ├── bloc                    - contains request/response models
-    │   │   ├── cart                - contains common files and utilities of project
-    │   │   └── products            - contains common files and utilities of project
-    │   ├── screens                 - network repository 
-    │   └── widgets                 - contains API calling methods
-    └── widgets                     - contains all custom widget classes
+    │   ├── bloc                    - contains your state, event and bloc. They are at the heart of the state management
+    │   │   ├── cart                - contains cart state, event and bloc
+    │   │   └── products            - contains product state, event and bloc
+    │   ├── screens                 - contains pages 
+    └── ─── widgets                 - contains all custom widget classes
 ```
 
 
