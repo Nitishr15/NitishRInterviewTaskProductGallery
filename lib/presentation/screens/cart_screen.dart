@@ -92,6 +92,15 @@ class CartScreen extends StatelessWidget {
                                               }
                                             },
                                           ),
+                                          IconButton(
+                                            icon: Icon(
+                                                Icons.remove_shopping_cart),
+                                            onPressed: () {
+                                              context.read<CartBloc>().add(
+                                                  RemoveProductFromCart(
+                                                      product));
+                                            },
+                                          ),
                                         ],
                                       ),
                                     ],

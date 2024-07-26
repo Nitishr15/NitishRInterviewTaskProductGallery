@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class ApiClient {
   static const String _baseUrl =
-      'https://mocki.io/v1/04c003ee-2517-44eb-aaf2-9f8505ea86bd';
+      'https://mocki.io/v1/f0f88710-c808-4b81-a626-022dbe47c3bd';
 
   Future<List<dynamic>> fetchProducts() async {
     final response = await http.get(Uri.parse(_baseUrl));
