@@ -5,64 +5,71 @@ import '../../../domain/entities/product.dart';
 part 'cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
-  CartBloc() : super(CartLoaded(products: [])) {
-    on<LoadCart>(_onLoadCart);
-    on<AddProductToCart>(_onAddProductToCart);
-    on<RemoveProductFromCart>(_onRemoveProductFromCart);
-    on<UpdateProductQuantity>(_onUpdateProductQuantity);
+  CartBloc() : super(CartLoading()) {
+    on<LoadCart>((event, emit) => _mapLoadCartToState(emit));
+    on<AddProductToCart>(
+        (event, emit) => _mapAddProductToCartToState(event, emit));
+    on<RemoveProductFromCart>(
+        (event, emit) => _mapRemoveProductFromCartToState(event, emit));
+    on<ClearCart>((event, emit) => _mapClearCartToState(emit));
+    on<UpdateProductQuantity>(
+        (event, emit) => _mapUpdateProductQuantityToState(event, emit));
   }
 
-  void _onLoadCart(LoadCart event, Emitter<CartState> emit) {
-    // Load initial cart state (e.g., from local storage or an API)
+  void _mapLoadCartToState(Emitter<CartState> emit) {
     emit(CartLoaded(products: []));
   }
 
-  void _onAddProductToCart(AddProductToCart event, Emitter<CartState> emit) {
-    print('Current State: $state');
+  void _mapAddProductToCartToState(
+      AddProductToCart event, Emitter<CartState> emit) {
     if (state is CartLoaded) {
-      final cart = (state as CartLoaded).products;
-      final existingProductIndex =
-          cart.indexWhere((product) => product.id == event.product.id);
-      if (existingProductIndex != -1) {
-        final updatedCart = List<Product>.from(cart);
-        final existingProduct = updatedCart[existingProductIndex];
-        final updatedProduct =
-            existingProduct.copyWith(quantity: existingProduct.quantity + 1);
-        updatedCart[existingProductIndex] = updatedProduct;
-        emit(CartLoaded(products: updatedCart));
+      final List<Product> updatedProducts =
+          List.from((state as CartLoaded).products);
+      final index = updatedProducts
+          .indexWhere((product) => product.id == event.product.id);
+
+      if (index != -1) {
+        final existingProduct = updatedProducts[index];
+        updatedProducts[index] = existingProduct.copyWith(
+            quantity: existingProduct.quantity + event.product.quantity);
       } else {
-        final updatedCart = List<Product>.from(cart)
-          ..add(event.product.copyWith(quantity: 1));
-        emit(CartLoaded(products: updatedCart));
+        updatedProducts.add(event.product);
       }
-    } else {
-      print('error');
+
+      emit(CartLoaded(products: updatedProducts));
     }
   }
 
-  void _onRemoveProductFromCart(
+  void _mapRemoveProductFromCartToState(
       RemoveProductFromCart event, Emitter<CartState> emit) {
     if (state is CartLoaded) {
-      final cart = (state as CartLoaded).products;
-      final updatedCart = List<Product>.from(cart)
-        ..removeWhere((product) => product.id == event.product.id);
-      emit(CartLoaded(products: updatedCart));
+      final updatedProducts = (state as CartLoaded)
+          .products
+          .where((product) => product.id != event.product.id)
+          .toList();
+      emit(CartLoaded(products: updatedProducts));
     }
   }
 
-  void _onUpdateProductQuantity(
+  void _mapClearCartToState(Emitter<CartState> emit) {
+    emit(CartLoaded(products: []));
+  }
+
+  void _mapUpdateProductQuantityToState(
       UpdateProductQuantity event, Emitter<CartState> emit) {
     if (state is CartLoaded) {
-      final cart = (state as CartLoaded).products;
-      final productIndex =
-          cart.indexWhere((product) => product.id == event.product.id);
-      if (productIndex != -1) {
+      final List<Product> updatedProducts =
+          List.from((state as CartLoaded).products);
+      final index = updatedProducts
+          .indexWhere((product) => product.id == event.product.id);
+
+      if (index != -1) {
         final updatedProduct =
-            cart[productIndex].copyWith(quantity: event.quantity);
-        final updatedCart = List<Product>.from(cart)
-          ..[productIndex] = updatedProduct;
-        emit(CartLoaded(products: updatedCart));
+            updatedProducts[index].copyWith(quantity: event.quantity);
+        updatedProducts[index] = updatedProduct;
       }
+
+      emit(CartLoaded(products: updatedProducts));
     }
   }
 }

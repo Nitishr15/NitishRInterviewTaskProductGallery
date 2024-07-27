@@ -36,11 +36,11 @@ class CartContent extends StatelessWidget {
                 return Card(
                   margin: EdgeInsets.all(8.0),
                   child: ListTile(
-                    leading: Image.network(product.imageUrl),
+                    leading: Image.network(
+                      product.imageUrl,
+                    ),
                     title: Text(
                       product.name,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       formatCurrency.format(product.price),

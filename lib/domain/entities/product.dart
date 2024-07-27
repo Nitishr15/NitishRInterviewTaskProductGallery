@@ -14,7 +14,7 @@ class Product extends Equatable {
     required this.imageUrl,
     required this.price,
     required this.description,
-    this.quantity = 1,
+    required this.quantity,
   });
 
   Product copyWith({
